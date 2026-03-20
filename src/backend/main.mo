@@ -45,6 +45,7 @@ actor {
   };
 
   // Claim admin privileges with secret
+  // Directly grants admin to caller if secret matches - no "first only" restriction
   public shared ({ caller }) func claimAdmin(secret : Text) : async Bool {
     if (caller.isAnonymous()) {
       Runtime.trap("Anonymous principals cannot claim admin privileges");
@@ -54,8 +55,9 @@ actor {
       return false;
     };
 
-    // Initialize the caller as admin
-    AccessControl.initialize(accessControlState, caller, ADMIN_SECRET, ADMIN_SECRET);
+    // Directly set caller as admin regardless of adminAssigned flag
+    accessControlState.userRoles.add(caller, #admin);
+    accessControlState.adminAssigned := true;
     true;
   };
 
