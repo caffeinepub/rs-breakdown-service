@@ -125,7 +125,11 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Truck className="h-6 w-6 text-primary" />
+            <img
+              src="/assets/generated/rs-logo-transparent.dim_400x400.png"
+              alt="RS Logo"
+              className="h-8 w-8 object-contain"
+            />
             <span className="font-black text-sm sm:text-base uppercase tracking-wide text-foreground">
               RS <span className="text-primary">Breakdown</span> Service
             </span>
@@ -250,32 +254,32 @@ export default function HomePage() {
                       setErrors((prev) => ({ ...prev, service: "" }));
                     }}
                     data-ocid={`service.item.${i + 1}`}
-                    className={`relative flex flex-col items-center text-center p-5 rounded-xl border-2 transition-all min-h-[140px] hover:border-primary/70 ${
+                    className={`relative flex flex-col items-center text-center p-6 rounded-xl border-2 transition-all min-h-[180px] hover:border-primary/70 ${
                       isSelected
                         ? "border-primary bg-primary/10 shadow-glow"
                         : "border-border bg-card hover:bg-muted"
                     }`}
                   >
                     {isSelected && (
-                      <CheckCircle2 className="absolute top-2 right-2 h-4 w-4 text-primary" />
+                      <CheckCircle2 className="absolute top-3 right-3 h-5 w-5 text-primary" />
                     )}
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
+                      className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${
                         isSelected ? "bg-primary" : "bg-muted"
                       }`}
                     >
                       <Icon
-                        className={`h-6 w-6 ${
+                        className={`h-10 w-10 ${
                           isSelected
                             ? "text-primary-foreground"
                             : "text-primary"
                         }`}
                       />
                     </div>
-                    <p className="font-black uppercase text-xs sm:text-sm text-foreground mb-1">
+                    <p className="font-black uppercase text-lg text-foreground mb-1">
                       {service.name}
                     </p>
-                    <p className="text-muted-foreground text-xs mt-1 hidden sm:block">
+                    <p className="text-muted-foreground text-xs mt-1">
                       {service.desc}
                     </p>
                   </motion.button>
@@ -547,7 +551,11 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Truck className="h-5 w-5 text-primary" />
+              <img
+                src="/assets/generated/rs-logo-transparent.dim_400x400.png"
+                alt="RS Logo"
+                className="h-6 w-6 object-contain"
+              />
               <span className="font-black uppercase text-sm text-foreground">
                 RS Breakdown Service
               </span>

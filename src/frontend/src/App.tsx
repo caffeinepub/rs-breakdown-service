@@ -1,3 +1,4 @@
+import SplashScreen from "@/components/SplashScreen";
 import { Toaster } from "@/components/ui/sonner";
 import AdminPage from "@/pages/AdminPage";
 import HomePage from "@/pages/HomePage";
@@ -8,6 +9,8 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
+import { AnimatePresence } from "motion/react";
+import { useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -33,10 +36,20 @@ declare module "@tanstack/react-router" {
 }
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster richColors position="top-center" />
+      <AnimatePresence mode="wait">
+        {!splashDone ? (
+          <SplashScreen key="splash" onDone={() => setSplashDone(true)} />
+        ) : (
+          <div key="app">
+            <RouterProvider router={router} />
+            <Toaster richColors position="top-center" />
+          </div>
+        )}
+      </AnimatePresence>
     </QueryClientProvider>
   );
 }
