@@ -21,28 +21,24 @@ const SERVICES = [
   {
     id: "jump-start",
     name: "Jump Start",
-    price: "£49",
     icon: Zap,
     desc: "Dead battery? We'll get you going fast.",
   },
   {
     id: "fuel-delivery",
     name: "Fuel Delivery",
-    price: "£59",
     icon: Fuel,
     desc: "Ran out of fuel? We'll bring it to you.",
   },
   {
     id: "flat-tyre",
     name: "Flat Tyre",
-    price: "£49",
     icon: Circle,
     desc: "Tyre change or inflation on the spot.",
   },
   {
     id: "towing",
     name: "Towing Service",
-    price: "£99",
     icon: Truck,
     desc: "Safe towing to your chosen destination.",
   },
@@ -110,7 +106,6 @@ export default function HomePage() {
         phone: form.phone,
         location: form.location,
         service: service.name,
-        price: service.price,
       });
       setSubmitted(true);
       setForm({ name: "", phone: "", location: "" });
@@ -186,8 +181,9 @@ export default function HomePage() {
               Free Visit — Guaranteed
             </p>
             <p className="text-muted-foreground text-sm sm:text-base mb-8">
-              Professional breakdown recovery across the UK. Fast, reliable,
-              affordable.
+              Professional breakdown recovery across{" "}
+              <span className="text-primary font-bold">Delhi NCR</span>. Fast,
+              reliable, affordable.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -276,9 +272,6 @@ export default function HomePage() {
                     <p className="font-black uppercase text-xs sm:text-sm text-foreground mb-1">
                       {service.name}
                     </p>
-                    <p className="text-primary font-black text-xl sm:text-2xl">
-                      {service.price}
-                    </p>
                     <p className="text-muted-foreground text-xs mt-1 hidden sm:block">
                       {service.desc}
                     </p>
@@ -351,7 +344,7 @@ export default function HomePage() {
                     <Input
                       id="name"
                       data-ocid="form.input"
-                      placeholder="e.g. John Smith"
+                      placeholder="e.g. Rahul Sharma"
                       value={form.name}
                       onChange={(e) =>
                         setForm((p) => ({ ...p, name: e.target.value }))
@@ -379,7 +372,7 @@ export default function HomePage() {
                       id="phone"
                       data-ocid="form.input"
                       type="tel"
-                      placeholder="e.g. 07700 900000"
+                      placeholder="e.g. 98765 43210"
                       value={form.phone}
                       onChange={(e) =>
                         setForm((p) => ({ ...p, phone: e.target.value }))
@@ -406,7 +399,7 @@ export default function HomePage() {
                     <Input
                       id="location"
                       data-ocid="form.input"
-                      placeholder="e.g. M1 Motorway, Junction 15, Manchester"
+                      placeholder="e.g. Connaught Place, New Delhi"
                       value={form.location}
                       onChange={(e) =>
                         setForm((p) => ({ ...p, location: e.target.value }))
@@ -424,12 +417,9 @@ export default function HomePage() {
                   </div>
 
                   {selectedService && (
-                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 flex items-center justify-between">
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 flex items-center justify-center">
                       <span className="text-sm font-bold text-foreground uppercase">
                         {SERVICES.find((s) => s.id === selectedService)?.name}
-                      </span>
-                      <span className="text-primary font-black text-lg">
-                        {SERVICES.find((s) => s.id === selectedService)?.price}
                       </span>
                     </div>
                   )}

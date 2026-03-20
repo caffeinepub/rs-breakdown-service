@@ -12,7 +12,6 @@ export function useSubmitRequest() {
       phone: string;
       location: string;
       service: string;
-      price: string;
     }) => {
       if (!actor) throw new Error("Not connected");
       return actor.submitRequest(
@@ -20,7 +19,7 @@ export function useSubmitRequest() {
         data.phone,
         data.location,
         data.service,
-        data.price,
+        "",
       );
     },
   });
