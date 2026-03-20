@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useInternetIdentity } from "@/hooks/useInternetIdentity";
 import {
+  useClaimAdmin,
   useGetRequests,
   useIsAdmin,
   useUpdateStatus,
@@ -16,14 +18,17 @@ import {
 import type { ServiceRequest } from "@/hooks/useQueries";
 import {
   Clock,
+  KeyRound,
   LogOut,
   MapPin,
+  MessageCircle,
   Phone,
   RefreshCw,
   Truck,
   Wrench,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 
 function formatTimestamp(ts: bigint): string {
   const ms = Number(ts / 1_000_000n);
@@ -53,6 +58,9 @@ function statusStyle(status: string) {
 
 function RequestCard({ req }: { req: ServiceRequest }) {
   const updateStatus = useUpdateStatus();
+  const whatsappMsg = encodeURIComponent(
+    `Hi, regarding your breakdown request for ${req.service} at ${req.location}`,
+  );
 
   return (
     <div className="bg-card border border-border rounded-xl p-5 space-y-4">
@@ -77,15 +85,6 @@ function RequestCard({ req }: { req: ServiceRequest }) {
 
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div className="flex items-center gap-2">
-          <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
-          <a
-            href={`tel:${req.phone}`}
-            className="text-foreground hover:text-primary transition-colors truncate"
-          >
-            {req.phone}
-          </a>
-        </div>
-        <div className="flex items-center gap-2">
           <Wrench className="h-3.5 w-3.5 text-primary shrink-0" />
           <span className="text-foreground font-bold">{req.service}</span>
         </div>
@@ -95,8 +94,30 @@ function RequestCard({ req }: { req: ServiceRequest }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-1 border-t border-border">
-        <span className="text-primary font-black text-xl">{req.price}</span>
+      {/* Customer contact buttons */}
+      <div className="flex gap-2">
+        <a
+          href={`tel:${req.phone}`}
+          data-ocid="admin.primary_button"
+          className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold text-sm uppercase px-3 py-3 rounded-lg transition-colors min-h-[44px]"
+        >
+          <Phone className="h-4 w-4" />
+          Call {req.phone}
+        </a>
+        <a
+          href={`https://wa.me/91${req.phone}?text=${whatsappMsg}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-ocid="admin.secondary_button"
+          className="flex-1 flex items-center justify-center gap-2 text-white font-bold text-sm uppercase px-3 py-3 rounded-lg transition-opacity hover:opacity-90 min-h-[44px]"
+          style={{ backgroundColor: "#25D366" }}
+        >
+          <MessageCircle className="h-4 w-4" />
+          WhatsApp
+        </a>
+      </div>
+
+      <div className="flex items-center justify-end gap-3 pt-1 border-t border-border">
         <Select
           value={req.status}
           onValueChange={(val) =>
@@ -205,6 +226,82 @@ function Dashboard() {
   );
 }
 
+function ClaimAdminPanel({ onBack }: { onBack: () => void }) {
+  const [password, setPassword] = useState("");
+  const claimAdmin = useClaimAdmin();
+  const [failed, setFailed] = useState(false);
+
+  async function handleClaim() {
+    setFailed(false);
+    const result = await claimAdmin.mutateAsync(password);
+    if (!result) setFailed(true);
+  }
+
+  return (
+    <motion.div
+      key="claim"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      className="max-w-sm mx-auto pt-8"
+    >
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <KeyRound className="h-8 w-8 text-primary" />
+        </div>
+        <h1 className="text-2xl font-black uppercase text-foreground mb-1">
+          Enter Admin Password
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Enter the admin password to activate your account
+        </p>
+      </div>
+
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <Input
+          type="password"
+          placeholder="Admin password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleClaim()}
+          className="bg-secondary border-border text-foreground text-center text-lg tracking-widest"
+          data-ocid="admin.input"
+        />
+        {failed && (
+          <p
+            className="text-destructive text-xs text-center"
+            data-ocid="admin.error_state"
+          >
+            Incorrect password. Please try again.
+          </p>
+        )}
+        <Button
+          onClick={handleClaim}
+          disabled={claimAdmin.isPending || !password}
+          data-ocid="admin.primary_button"
+          className="w-full bg-primary text-primary-foreground font-black uppercase min-h-[48px] hover:opacity-90"
+        >
+          {claimAdmin.isPending ? (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              Verifying...
+            </>
+          ) : (
+            "Activate Admin Access"
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="w-full text-muted-foreground text-sm"
+        >
+          Sign Out
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function AdminPage() {
   const { login, clear, loginStatus, identity, isInitializing } =
     useInternetIdentity();
@@ -298,31 +395,7 @@ export default function AdminPage() {
               </div>
             </motion.div>
           ) : !isAdmin ? (
-            <motion.div
-              key="no-access"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="max-w-sm mx-auto pt-8 text-center"
-              data-ocid="admin.error_state"
-            >
-              <div className="bg-card border border-destructive/40 rounded-xl p-8">
-                <h2 className="text-xl font-black uppercase text-foreground mb-2">
-                  Access Denied
-                </h2>
-                <p className="text-muted-foreground text-sm mb-6">
-                  Your account does not have admin privileges.
-                </p>
-                <Button
-                  onClick={() => clear()}
-                  variant="outline"
-                  data-ocid="admin.cancel_button"
-                  className="border-border"
-                >
-                  Sign Out
-                </Button>
-              </div>
-            </motion.div>
+            <ClaimAdminPanel onBack={() => clear()} />
           ) : (
             <motion.div
               key="dashboard"

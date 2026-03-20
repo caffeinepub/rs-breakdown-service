@@ -111,6 +111,9 @@ export default function HomePage() {
       setForm({ name: "", phone: "", location: "" });
       setSelectedService(null);
       setErrors({});
+      // Notify admin on WhatsApp with request details
+      const adminWhatsApp = `https://wa.me/918377047123?text=${encodeURIComponent(`🚨 New Breakdown Request!\n\nName: ${form.name}\nPhone: ${form.phone}\nService: ${service.name}\nLocation: ${form.location}`)}`;
+      window.open(adminWhatsApp, "_blank");
     } catch {
       toast.error("Failed to submit request. Please try again.");
     }
@@ -314,8 +317,8 @@ export default function HomePage() {
                     Request Submitted!
                   </h3>
                   <p className="text-muted-foreground text-sm mb-6">
-                    We&apos;ve received your request. Our team will be with you
-                    within 30 minutes.
+                    We&apos;ve received your request and notified our team on
+                    WhatsApp. We&apos;ll be with you within 30 minutes.
                   </p>
                   <Button
                     onClick={() => setSubmitted(false)}

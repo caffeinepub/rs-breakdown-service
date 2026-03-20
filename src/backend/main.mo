@@ -8,7 +8,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 actor {
-  // Initialize the access control system
+  // Access control state
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -19,10 +19,13 @@ actor {
 
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // User profile management functions
+  // Admin secret
+  let ADMIN_SECRET = "admin123";
+
+  // User profile functions
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access profiles");
+      Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.get(caller);
   };
@@ -41,7 +44,22 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Service Request data type
+  // Claim admin privileges with secret
+  public shared ({ caller }) func claimAdmin(secret : Text) : async Bool {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Anonymous principals cannot claim admin privileges");
+    };
+
+    if (secret != ADMIN_SECRET) {
+      return false;
+    };
+
+    // Initialize the caller as admin
+    AccessControl.initialize(accessControlState, caller, ADMIN_SECRET, ADMIN_SECRET);
+    true;
+  };
+
+  // Service request type
   public type ServiceRequest = {
     id : Nat;
     name : Text;
@@ -53,8 +71,8 @@ actor {
     timestamp : Int;
   };
 
-  stable var nextRequestId : Nat = 1;
-  stable var requestsArray : [ServiceRequest] = [];
+  var nextRequestId : Nat = 1;
+  var requestsArray : [ServiceRequest] = [];
 
   let requests = List.fromArray<ServiceRequest>(requestsArray);
 
